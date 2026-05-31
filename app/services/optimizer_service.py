@@ -258,30 +258,7 @@ def optimize_portfolio(request):
         "allocation_changes": response
     }
 
-    # Compute portfolio level metrics (CAGR, Volatility, Sharpe, Drawdown, etc.)
-    if all(s.returns is not None and len(s.returns) > 0 for s in request.securities):
-        current_weights = np.array([s.current_weight / 100.0 for s in request.securities])
-        opt_weights = np.array(weights)
-        
-        curr_metrics = _calculate_portfolio_metrics(current_weights, request)
-        opt_metrics = _calculate_portfolio_metrics(opt_weights, request)
-        te = _calculate_tracking_error(opt_weights, current_weights, request.securities)
-        
-        change_metrics = {}
-        for key in curr_metrics:
-            change_metrics[key] = round(opt_metrics[key] - curr_metrics[key], 2)
-            
-        result["portfolio_metrics"] = {
-            "duration_years": round(request.years, 2) if request.years is not None else round(len(request.securities[0].returns)/252.0, 2),
-            "current_portfolio": curr_metrics,
-            "optimized_portfolio": opt_metrics,
-            "change": change_metrics,
-            "tracking_error": {
-                "current_portfolio": 0.00,
-                "optimized_portfolio": te,
-                "change": te
-            }
-        }
+
 
     # Compute portfolio factor betas for current and optimized portfolios
     if request.factor_returns:
