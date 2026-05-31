@@ -23,13 +23,11 @@ def min_drawdown_objective(weights, securities):
     return max_drawdown(port_returns)
 
 
-def minimize_drawdown_strategy(request):
+def minimize_drawdown_strategy(request, bounds):
     securities = request.securities
     n = len(securities)
 
     initial = np.array([1 / n] * n)
-
-    bounds = [(0, 1)] * n
 
     constraints = ({'type': 'eq', 'fun': lambda w: np.sum(w) - 1},)
 
@@ -42,4 +40,8 @@ def minimize_drawdown_strategy(request):
         constraints=constraints
     )
 
+    if not result.success:
+        raise ValueError(f"Minimize drawdown optimization failed: {result.message}")
+
     return result.x
+

@@ -65,7 +65,10 @@ def _parse_excel_to_request(file: UploadFile, strategy: str, factor_file: Upload
 
 @router.post("/optimize")
 def optimize(request: OptimizationRequest):
-    return optimize_portfolio(request)
+    try:
+        return optimize_portfolio(request)
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
 
 
 @router.post("/optimize/upload")
@@ -73,6 +76,54 @@ def optimize_upload(
     strategy: str = Form("equal_weight"),
     file: UploadFile = File(...),
     factor_file: UploadFile = File(None),
+    constraints: str = Form(None),
 ):
-    request = _parse_excel_to_request(file, strategy, factor_file)
-    return optimize_portfolio(request)
+    import json
+    from app.models.request_model import Constraints
+    parsed_constraints = None
+    if constraints:
+        try:
+            parsed_constraints = Constraints.parse_raw(constraints)
+        except Exception:
+            try:
+                parsed_constraints = Constraints(**json.loads(constraints))
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"Invalid constraints JSON: {e}")
+
+    # Check for multi-sheet Data.xlsx format
+    try:
+        xls = pd.ExcelFile(file.file)
+        if 'Fund Info' in xls.sheet_names and 'Fund Returns' in xls.sheet_names:
+            file.file.seek(0)
+            with open("Data.xlsx", "wb") as f_out:
+                f_out.write(file.file.read())
+            
+            df_info = pd.read_excel(xls, sheet_name='Fund Info')
+            securities = []
+            for _, row in df_info.iterrows():
+                securities.append({
+                    "ticker": str(row["ticker"]),
+                    "security_name": str(row["fund_name"]),
+                    "current_weight": 20.0,  # Default weight
+                    "returns": None,
+                    "dividend_yield": float(row["dividend_yield"]) if not pd.isna(row["dividend_yield"]) else None
+                })
+            
+            req = OptimizationRequest(strategy=strategy, securities=securities, constraints=parsed_constraints)
+            try:
+                return optimize_portfolio(req)
+            except Exception as exc:
+                raise HTTPException(status_code=400, detail=str(exc))
+    except Exception:
+        pass
+
+    file.file.seek(0)
+    try:
+        req = _parse_excel_to_request(file, strategy, factor_file)
+        if parsed_constraints:
+            req.constraints = parsed_constraints
+        return optimize_portfolio(req)
+    except Exception as exc:
+        if isinstance(exc, HTTPException):
+            raise exc
+        raise HTTPException(status_code=400, detail=str(exc))

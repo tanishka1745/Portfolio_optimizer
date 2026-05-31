@@ -1,41 +1,54 @@
 import numpy as np
 from scipy.optimize import minimize
 
-
 def portfolio_returns_series(weights, securities):
+    """
+    Calculates the combined historical daily return series of the portfolio.
+    """
     returns = np.array([s.returns for s in securities])
     port_returns = np.dot(weights, returns)
     return port_returns
 
-
 def regress_betas(port_returns, factor_matrix):
-    # factor_matrix: (t, k)
+    """
+    Performs multiple linear regression (OLS) to estimate the factor betas (ex intercept)
+    for the portfolio return series against a set of factor return series.
+    """
+    # Create feature matrix with constant intercept column
     X = np.column_stack([np.ones(len(port_returns)), factor_matrix])
     y = port_returns
+    # Least squares solver
     betas, *_ = np.linalg.lstsq(X, y, rcond=None)
-    # return only factor betas (exclude intercept)
+    # Exclude intercept coefficient (betas[0]) and return factor betas
     return betas[1:]
 
-
 def factor_objective(weights, securities, factors, factor_targets):
-    # factors: dict name->array (t,)
+    """
+    Objective function for factor exposure optimization.
+    Calculates portfolio returns, runs factor regression, and compiles the objective:
+    - Minimizes -beta (equivalent to maximizing beta) for factors targeted as 'max'.
+    - Minimizes +beta (equivalent to minimizing beta) for factors targeted as 'min'.
+    """
     port = portfolio_returns_series(weights, securities)
-    # build factor matrix in provided factor_targets order
+    # Assemble factor columns in the order defined by factor_targets keys
     names = list(factor_targets.keys())
     factor_matrix = np.column_stack([factors[name] for name in names])
     betas = regress_betas(port, factor_matrix)
-    # objective: sum over factors of -beta if maximize, +beta if minimize
+    
     obj = 0.0
     for i, name in enumerate(names):
         direction = factor_targets[name].lower()
         if direction == 'maximize' or direction == 'max':
-            obj -= betas[i]
+            obj -= betas[i]  # Maximizing loading
         else:
-            obj += betas[i]
+            obj += betas[i]  # Minimizing loading
     return obj
 
-
-def optimize_factor_exposure_strategy(request):
+def optimize_factor_exposure_strategy(request, bounds):
+    """
+    Finds optimal weights that maximize or minimize exposures to Fama-French/other factors
+    subject to budget limits and security-level weight bounds.
+    """
     securities = request.securities
     n = len(securities)
 
@@ -45,9 +58,9 @@ def optimize_factor_exposure_strategy(request):
     factors = request.factor_returns
     factor_targets = request.constraints.factor_targets
 
-    # ensure factors lengths match securities returns length
     initial = np.array([1 / n] * n)
-    bounds = [(0, 1)] * n
+    
+    # Capital allocation constraint
     constraints = ({'type': 'eq', 'fun': lambda w: np.sum(w) - 1},)
 
     result = minimize(
@@ -58,5 +71,9 @@ def optimize_factor_exposure_strategy(request):
         bounds=bounds,
         constraints=constraints
     )
+
+    # Check convergence; fail cleanly if constraints are infeasible
+    if not result.success:
+        raise ValueError(f"Optimize factor exposure optimization failed: {result.message}")
 
     return result.x
