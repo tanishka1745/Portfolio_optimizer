@@ -69,44 +69,6 @@ uvicorn app.main:app --reload
 
 ---
 
-## Validation Against Live Portfolio Optimizer Tool
-
-Candidates must validate their API implementation against the live Portfolio Optimizer tool using six standardized test cases. The first five are **required**; Case 6 applies only to candidates attempting the **Factor Exposure bonus**.
-
-### How to Run Validation Tests
-
-#### Step 1: Start the API Server
-```powershell
-# Terminal 1: Start the FastAPI server
-$env:PYTHONPATH="."
-venv/Scripts/python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
-```
-
-#### Step 2: Run All Six Test Scenarios
-```powershell
-# Terminal 2: Execute validation test cases
-$env:PYTHONPATH="."
-venv/Scripts/python test/run_validation_cases.py
-```
-
-This generates API responses for all six scenarios. Capture the output or redirect to a JSON file.
-
-#### Step 3: Run Acceptance Criteria Validation
-```powershell
-# Validate responses against acceptance criteria
-$env:PYTHONPATH="."
-venv/Scripts/python test/validate_acceptance_criteria.py
-```
-
-#### Step 4: Compare Against Live Tool
-1. Visit the live Portfolio Optimizer tool
-2. For each test case:
-   - Submit the same input portfolio and constraints to the live tool
-   - Take a screenshot of the optimized weights and metrics
-   - Compare with your API response
-   - Verify that optimized weights match within **0.1% tolerance**
-
----
 
 ## API Endpoints
 
@@ -115,11 +77,22 @@ venv/Scripts/python test/validate_acceptance_criteria.py
 **Request Example - Minimize Volatility:**
 ```json
 {
-  "strategy": "minimize_volatility",
+  "strategy": "risk parity",
   "securities": [
-    { "ticker": "SPY", "security_name": "SPDR S&P 500 ETF", "current_weight": 60.0, "returns": [0.015, 0.005, 0.020, ...], "dividend_yield": 1.5 },
-    { "ticker": "AGG", "security_name": "iShares Core US Aggregate Bond ETF", "current_weight": 30.0, "returns": [0.005, 0.003, 0.001, ...], "dividend_yield": 3.2 },
-    { "ticker": "GLD", "security_name": "SPDR Gold Shares", "current_weight": 10.0, "returns": [0.008, 0.002, -0.010, ...], "dividend_yield": 0.0 }
+    {
+      "ticker": "SPY",
+      "security_name": "State Street SPDR S&P 500 ETF Trust",
+      "allocation": 60.0,
+      "min_weight": 0.0,
+      "max_weight": 100.0
+    },
+    {
+      "ticker": "AGG",
+      "security_name": "iShares Core US Aggregate Bond ETF",
+      "allocation": 40.0,
+      "min_weight": 0.0,
+      "max_weight": 100.0
+    }
   ]
 }
 ```
@@ -171,37 +144,20 @@ venv/Scripts/python test/validate_acceptance_criteria.py
   }
 }
 ```
-
-**Security Fields:**
-- `ticker` (required): Security ticker symbol
-- `security_name` (required): Full name of the security
-- `current_weight` (required): Current weight as percentage (0-100)
-- `returns` (required): Array of historical periodic returns (decimals, e.g., 0.012 = 1.2%)
-- `dividend_yield` (optional): Annual dividend yield as percentage
-
-**Optional Constraints:**
-- `min_weight`: Global minimum weight per security (percentage)
-- `max_weight`: Global maximum weight per security (percentage)
-- `min_dividend_yield`: Portfolio minimum dividend yield (percentage)
-- `factor_targets`: Factor exposure targets (e.g., `{"Momentum": "max"}`)
-
----
-
-### 2. `POST /optimize/upload` (Excel File Upload)
-Upload a single-sheet or multi-sheet `Data.xlsx`:
-
-**Format:**
-- Columns: `ticker`, `security_name`, `current_weight`, `dividend_yield` (optional), plus return columns
-- Multi-sheet: Fund Info, Fund Returns, Factor Returns (optional)
-
-**Example cURL:**
-```bash
-curl -X POST "http://127.0.0.1:8000/optimize/upload" \
-  -F "strategy=minimize_volatility" \
-  -F "file=@Data.xlsx"
-```
-
----
-
 ## Automated Error Handling
 If any constraints are incompatible or impossible to meet (e.g. demanding a 10% dividend yield when no assets yield more than 4%), the API will reject the request immediately with an **HTTP 400 Bad Request** error containing details about the infeasible constraints.
+
+
+#ScreenShot of correct output
+
+Equal Weight
+<img width="691" height="163" alt="output" src="https://github.com/user-attachments/assets/16ac8521-f983-4b77-9a52-486a4cf1a259" />
+<img width="818" height="206" alt="response data" src="https://github.com/user-attachments/assets/03759a3f-add6-4d72-84fa-6ee964d0e271" />
+<img width="870" height="266" alt="api request" src="https://github.com/user-attachments/assets/66cb688f-6fb4-463f-a4e3-c61bfaf9dac6" />
+
+# Risk Parity
+<img width="697" height="239" alt="risk correct " src="https://github.com/user-attachments/assets/6c459a79-5699-43db-bd0e-0fce34a9db0a" />
+<img width="909" height="257" alt="response risky" src="https://github.com/user-attachments/assets/28df59fe-a210-481b-aaa0-bfad24b32ac2" />
+<img width="902" height="290" alt="request risky" src="https://github.com/user-attachments/assets/1d4aa593-0c72-4bd8-8299-21d9b298a0ac" />
+
+
