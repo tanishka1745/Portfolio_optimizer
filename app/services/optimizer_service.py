@@ -16,21 +16,36 @@ from app.strategy.min_volatility import portfolio_volatility
 def _apply_weight_bounds(request, n):
     """
     Constructs the security-level lower and upper weight bounds.
+    Checks security-level bounds first, falling back to request-level constraints.
     Converts constraints from percentages to decimals (e.g., 5% -> 0.05) if necessary.
     """
-    if request.constraints:
-        min_w = request.constraints.min_weight if request.constraints.min_weight is not None else 0
-        max_w = request.constraints.max_weight if request.constraints.max_weight is not None else 1
-    else:
-        min_w, max_w = 0, 1
-    
-    # Handle percentage values gracefully (e.g., 5.0 -> 0.05, 40.0 -> 0.40)
-    if min_w > 1.0:
-        min_w = min_w / 100.0
-    if max_w > 1.0:
-        max_w = max_w / 100.0
+    bounds = []
+    for s in request.securities:
+        min_w = s.min_weight if s.min_weight is not None else None
+        max_w = s.max_weight if s.max_weight is not None else None
         
-    return [(min_w, max_w)] * n
+        # Fallback to global constraints
+        if min_w is None:
+            if request.constraints and request.constraints.min_weight is not None:
+                min_w = request.constraints.min_weight
+            else:
+                min_w = 0.0
+                
+        if max_w is None:
+            if request.constraints and request.constraints.max_weight is not None:
+                max_w = request.constraints.max_weight
+            else:
+                max_w = 1.0
+
+        # Handle percentage values (e.g., 5.0 -> 0.05, 40.0 -> 0.40)
+        if min_w > 1.0:
+            min_w = min_w / 100.0
+        if max_w > 1.0:
+            max_w = max_w / 100.0
+            
+        bounds.append((min_w, max_w))
+    return bounds
+
 
 def _portfolio_returns(weights, securities):
     """
@@ -52,7 +67,17 @@ def _compute_factor_betas(port_returns, factors):
     # Exclude the intercept beta (betas[0]) and return factor loading dict
     return {names[i].lower(): float(betas[i+1]) for i in range(len(names))}
 
-def _ensure_data_is_loaded(request):
+def _compute_max_drawdown(port_returns):
+    """
+    Computes the maximum drawdown of a return series.
+    Returns a negative value, e.g. -0.25 means a 25% peak-to-trough loss.
+    """
+    cum = np.cumprod(1 + np.array(port_returns))
+    peaks = np.maximum.accumulate(cum)
+    drawdowns = (cum - peaks) / peaks
+    return float(np.min(drawdowns)) if len(drawdowns) > 0 else 0.0
+
+
     """
     Ensures that historical return series, asset names, dividend yields, and factor returns
     are fully populated. 
@@ -122,38 +147,25 @@ def _ensure_data_is_loaded(request):
             dates = pd.to_datetime(common_idx)
             request.years = float((dates[-1] - dates[0]).days / 365.25)
             
-            has_returns = True
+            has_returns = all(s.returns is not None and len(s.returns) > 0 for s in request.securities)
         except Exception:
             pass  # Fall back to Yahoo Finance if Excel reading encounters issues
 
     # 2. Fallback to Yahoo Finance for asset returns and yields
+    asset_returns = None
     if not has_returns:
+        request.factor_returns = None
         tickers = [s.ticker for s in request.securities]
         try:
             # Download price data starting from standard launch date threshold
             df_assets = yf.download(tickers, start="2012-10-22")['Close'].ffill().dropna()
+            if isinstance(df_assets, pd.Series):
+                df_assets = df_assets.to_frame(name=tickers[0])
+            elif len(tickers) == 1:
+                df_assets.columns = tickers
             asset_returns = df_assets.pct_change().dropna()
-            
-            # Save calendar years
-            dates = pd.to_datetime(asset_returns.index)
-            request.years = float((dates[-1] - dates[0]).days / 365.25)
-            
-            for security in request.securities:
-                ticker = security.ticker
-                if ticker in asset_returns.columns:
-                    security.returns = list(asset_returns[ticker].values)
-                if security.dividend_yield is None:
-                    try:
-                        dy = yf.Ticker(ticker).info.get('dividendYield', 0.0)
-                        if dy is None:
-                            dy = 0.0
-                        if dy > 1.0:
-                            dy = dy / 100.0
-                        security.dividend_yield = dy
-                    except Exception:
-                        security.dividend_yield = 0.0
         except Exception as exc:
-            raise Exception(f"Failed to load historical returns: {exc}")
+            raise Exception(f"Failed to load historical returns from Yahoo Finance: {exc}")
 
     # Ensure all security yields are normalized
     for s in request.securities:
@@ -176,14 +188,42 @@ def _ensure_data_is_loaded(request):
             df_mom.set_index('Date', inplace=True)
             df_mom['Mom'] = df_mom['Mom'].astype(float) / 100.0
             
-            # Align lengths
-            n_returns = len(request.securities[0].returns)
-            df_mom_tail = df_mom.tail(n_returns)
-            request.factor_returns = {
-                'Momentum': list(df_mom_tail['Mom'].values)
-            }
+            # Align asset returns and factors by date index
+            if asset_returns is not None:
+                common_idx = asset_returns.index.intersection(df_mom.index)
+                asset_returns = asset_returns.loc[common_idx]
+                df_mom = df_mom.loc[common_idx]
+                request.factor_returns = {
+                    'Momentum': list(df_mom['Mom'].values)
+                }
+            else:
+                n_returns = len(request.securities[0].returns)
+                df_mom_tail = df_mom.tail(n_returns)
+                request.factor_returns = {
+                    'Momentum': list(df_mom_tail['Mom'].values)
+                }
         except Exception as exc:
             raise Exception(f"Failed to load Fama-French factor returns: {exc}")
+
+    # Now populate returns for securities if we fetched them from Yahoo Finance
+    if asset_returns is not None:
+        dates = pd.to_datetime(asset_returns.index)
+        request.years = float((dates[-1] - dates[0]).days / 365.25)
+        
+        for security in request.securities:
+            ticker = security.ticker
+            if ticker in asset_returns.columns:
+                security.returns = list(asset_returns[ticker].values)
+            if security.dividend_yield is None or security.dividend_yield == 0.0:
+                try:
+                    dy = yf.Ticker(ticker).info.get('dividendYield', 0.0)
+                    if dy is None:
+                        dy = 0.0
+                    if dy > 1.0:
+                        dy = dy / 100.0
+                    security.dividend_yield = dy
+                except Exception:
+                    security.dividend_yield = 0.0
 
 def optimize_portfolio(request):
     """
@@ -194,24 +234,95 @@ def optimize_portfolio(request):
     _ensure_data_is_loaded(request)
 
     strategy = request.strategy
+
+    # Normalize strategy name: lowercase, replace spaces with underscores
+    strategy = strategy.lower().strip().replace(" ", "_")
+    # Accept plural forms: "equal_weights" -> "equal_weight", "risk_parities" -> "risk_parity"
+    STRATEGY_ALIASES = {
+        "equal_weights":            "equal_weight",
+        "minimize_volatilities":    "minimize_volatility",
+        "min_volatility":           "minimize_volatility",
+        "min_vol":                  "minimize_volatility",
+        "risk_parities":            "risk_parity",
+        "maximize_sharpe":          "max_sharpe",
+        "maximize_sharpe_ratio":    "max_sharpe",
+        "max_sharpe_ratio":         "max_sharpe",
+        "sharpe":                   "max_sharpe",
+        "minimize_drawdown":        "minimize_drawdown",
+        "min_drawdown":             "minimize_drawdown",
+        "factor_exposure":          "optimize_factor_exposure",
+        "factor":                   "optimize_factor_exposure",
+    }
+    strategy = STRATEGY_ALIASES.get(strategy, strategy)
+
     n = len(request.securities)
 
     # Apply lower/upper bounds per security
     bounds = _apply_weight_bounds(request, n)
 
-    # Compile portfolio-level constraints (e.g. Min Dividend Yield)
+    # Compile portfolio-level constraints
     extra_constraints = []
-    if request.constraints and request.constraints.min_dividend_yield is not None:
-        min_yield = request.constraints.min_dividend_yield
-        if min_yield > 1.0:
-            min_yield = min_yield / 100.0
-        
-        dy = np.array([s.dividend_yield for s in request.securities])
-        # Inequality constraint format for SciPy: sum(w_i * dy_i) - min_yield >= 0
-        extra_constraints.append({
-            'type': 'ineq',
-            'fun': lambda w, dy=dy, my=min_yield: np.dot(w, dy) - my
-        })
+    c = request.constraints
+
+    if c:
+        securities = request.securities
+        returns_matrix = np.array([s.returns for s in securities])
+        n_days = returns_matrix.shape[1]
+        freq = 252 if n_days > 500 else 12  # daily vs monthly
+
+        # 1. Min Dividend Yield: sum(w_i * dy_i) >= min_yield
+        if c.min_dividend_yield is not None:
+            min_yield = c.min_dividend_yield / 100.0 if c.min_dividend_yield > 1.0 else c.min_dividend_yield
+            dy = np.array([s.dividend_yield for s in securities])
+            extra_constraints.append({
+                'type': 'ineq',
+                'fun': lambda w, dy=dy, my=min_yield: np.dot(w, dy) - my
+            })
+
+        # 2. Min CAGR: annualized geometric mean >= min_cagr
+        if c.min_cagr is not None:
+            min_cagr = c.min_cagr / 100.0 if c.min_cagr > 1.0 else c.min_cagr
+            years = request.years if request.years else n_days / freq
+            extra_constraints.append({
+                'type': 'ineq',
+                'fun': lambda w, rm=returns_matrix, y=years, mc=min_cagr: (
+                    (np.prod(1 + np.dot(w, rm)) ** (1 / y) - 1) - mc
+                )
+            })
+
+        # 3. Max Volatility (upper bound): annualized vol <= max_volatility
+        if c.max_volatility is not None:
+            max_vol = c.max_volatility / 100.0 if c.max_volatility > 1.0 else c.max_volatility
+            extra_constraints.append({
+                'type': 'ineq',
+                'fun': lambda w, rm=returns_matrix, f=freq, mv=max_vol: (
+                    mv - np.std(np.dot(w, rm), ddof=0) * np.sqrt(f)
+                )
+            })
+
+        # 4. Min Volatility (lower bound): annualized vol >= min_volatility
+        if c.min_volatility is not None:
+            min_vol = c.min_volatility / 100.0 if c.min_volatility > 1.0 else c.min_volatility
+            extra_constraints.append({
+                'type': 'ineq',
+                'fun': lambda w, rm=returns_matrix, f=freq, mv=min_vol: (
+                    np.std(np.dot(w, rm), ddof=0) * np.sqrt(f) - mv
+                )
+            })
+
+        # 5. Max Drawdown: max drawdown >= max_drawdown (both negative, e.g. -0.20)
+        if c.max_drawdown is not None:
+            max_dd = c.max_drawdown / 100.0 if c.max_drawdown < -1.0 or c.max_drawdown > 1.0 else c.max_drawdown
+            # Ensure negative sign (user may pass -20 or -0.20 or even 20)
+            if max_dd > 0:
+                max_dd = -max_dd
+            extra_constraints.append({
+                'type': 'ineq',
+                'fun': lambda w, rm=returns_matrix, mdd=max_dd: (
+                    _compute_max_drawdown(np.dot(w, rm)) - mdd
+                )
+            })
+
 
     # Execute the requested optimization strategy
     if strategy == "equal_weight":
@@ -239,15 +350,15 @@ def optimize_portfolio(request):
     response = []
     for i, security in enumerate(request.securities):
         optimized_weight = round(weights[i] * 100, 2)
+        curr_w = round(security.current_weight if security.current_weight is not None else 0.0, 2)
         response.append({
             "ticker": security.ticker,
             "security_name": security.security_name,
-            "current_weight": security.current_weight,
+            "current_weight": curr_w,
             "optimized_weight": optimized_weight,
-            "allocation": optimized_weight,
+            "change": round(optimized_weight - curr_w, 2),
             "min_weight": round(bounds[i][0] * 100, 2),
-            "max_weight": round(bounds[i][1] * 100, 2),
-            "change": round(optimized_weight - security.current_weight, 2)
+            "max_weight": round(bounds[i][1] * 100, 2)
         })
 
     result = {
@@ -255,11 +366,9 @@ def optimize_portfolio(request):
         "allocation_changes": response
     }
 
-
-
     # Compute portfolio factor betas for current and optimized portfolios
     if request.factor_returns:
-        current_weights = np.array([s.current_weight / 100.0 for s in request.securities])
+        current_weights = np.array([(s.current_weight if s.current_weight is not None else 0.0) / 100.0 for s in request.securities])
         curr_port = _portfolio_returns(current_weights, request.securities)
         curr_betas = _compute_factor_betas(curr_port, request.factor_returns)
 

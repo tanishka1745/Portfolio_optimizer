@@ -69,54 +69,137 @@ uvicorn app.main:app --reload
 
 ---
 
-## Validating the 6 Test Scenarios
+## Validation Against Live Portfolio Optimizer Tool
 
-To run the local validation script that executes all six scenarios against your `Data.xlsx` sheet:
+Candidates must validate their API implementation against the live Portfolio Optimizer tool using six standardized test cases. The first five are **required**; Case 6 applies only to candidates attempting the **Factor Exposure bonus**.
+
+### How to Run Validation Tests
+
+#### Step 1: Start the API Server
 ```powershell
-# Set Python path and run the script
+# Terminal 1: Start the FastAPI server
+$env:PYTHONPATH="."
+venv/Scripts/python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+#### Step 2: Run All Six Test Scenarios
+```powershell
+# Terminal 2: Execute validation test cases
 $env:PYTHONPATH="."
 venv/Scripts/python test/run_validation_cases.py
 ```
 
-### Summary of the 6 Validation Scenarios
-1. **Scenario 1**: Equal Weights check (IEFA: 25%, SPY: 75% inputs).
-2. **Scenario 2**: Risk Parity check (VEA: 25%, AGG: 75% inputs).
-3. **Scenario 3**: Minimize Volatility (SPY: 60%, AGG: 30%, GLD: 10% inputs).
-4. **Scenario 4**: Maximize Sharpe (20% each: IEFA, GLD, AGG, VEA, SPY).
-5. **Scenario 5**: Maximize Sharpe with Constraints (Min yield: 2.50%; Security min: 5%, max: 40%).
-6. **Scenario 6**: Momentum Factor Exposure (Maximize Momentum; returns lowercase betas).
+This generates API responses for all six scenarios. Capture the output or redirect to a JSON file.
+
+#### Step 3: Run Acceptance Criteria Validation
+```powershell
+# Validate responses against acceptance criteria
+$env:PYTHONPATH="."
+venv/Scripts/python test/validate_acceptance_criteria.py
+```
+
+#### Step 4: Compare Against Live Tool
+1. Visit the live Portfolio Optimizer tool
+2. For each test case:
+   - Submit the same input portfolio and constraints to the live tool
+   - Take a screenshot of the optimized weights and metrics
+   - Compare with your API response
+   - Verify that optimized weights match within **0.1% tolerance**
 
 ---
 
 ## API Endpoints
 
 ### 1. `POST /optimize` (JSON Payload)
-**Request Body:**
+
+**Request Example - Minimize Volatility:**
 ```json
 {
-  "strategy": "max_sharpe",
+  "strategy": "minimize_volatility",
   "securities": [
-    { "ticker": "IEFA", "current_weight": 20.0 },
-    { "ticker": "GLD", "current_weight": 20.0 },
-    { "ticker": "AGG", "current_weight": 20.0 },
-    { "ticker": "VEA", "current_weight": 20.0 },
-    { "ticker": "SPY", "current_weight": 20.0 }
+    { "ticker": "SPY", "security_name": "SPDR S&P 500 ETF", "current_weight": 60.0, "returns": [0.015, 0.005, 0.020, ...], "dividend_yield": 1.5 },
+    { "ticker": "AGG", "security_name": "iShares Core US Aggregate Bond ETF", "current_weight": 30.0, "returns": [0.005, 0.003, 0.001, ...], "dividend_yield": 3.2 },
+    { "ticker": "GLD", "security_name": "SPDR Gold Shares", "current_weight": 10.0, "returns": [0.008, 0.002, -0.010, ...], "dividend_yield": 0.0 }
+  ]
+}
+```
+
+**Response Example:**
+```json
+{
+  "optimization_strategy": "minimize_volatility",
+  "allocation_changes": [
+    {
+      "ticker": "SPY",
+      "security_name": "SPDR S&P 500 ETF",
+      "current_weight": 60,
+      "optimized_weight": 20.09,
+      "change": -39.91,
+      "min_weight": 5,
+      "max_weight": 60
+    },
+    {
+      "ticker": "AGG",
+      "security_name": "iShares Core US Aggregate Bond ETF",
+      "current_weight": 30,
+      "optimized_weight": 61.09,
+      "change": 31.09,
+      "min_weight": 10,
+      "max_weight": 70
+    },
+    {
+      "ticker": "GLD",
+      "security_name": "SPDR Gold Shares",
+      "current_weight": 10,
+      "optimized_weight": 18.83,
+      "change": 8.83,
+      "min_weight": 5,
+      "max_weight": 40
+    }
   ],
-  "constraints": {
-    "min_weight": 5.0,
-    "max_weight": 40.0,
-    "min_dividend_yield": 2.50
+  "factor_betas": {
+    "current_portfolio": {
+      "momentum": 0.11411761219446463,
+      "size": -0.12197888822240849,
+      "value": 0.1102779313720765
+    },
+    "optimized_portfolio": {
+      "momentum": 0.053304390229500835,
+      "size": -0.03653513855702767,
+      "value": 0.00891026959301534
+    }
   }
 }
 ```
 
-### 2. `POST /optimize/upload` (Excel Upload)
-Upload a multi-sheet `Data.xlsx` file matching the structure:
-* **Fund Info**: Columns `ticker`, `fund_name`, `dividend_yield`.
-* **Fund Returns**: Columns `date`, `total_return`, `ticker`.
-* **Factor Returns**: Columns `date`, `total_return`, `index_ticker` (Momentum, Value, Size).
+**Security Fields:**
+- `ticker` (required): Security ticker symbol
+- `security_name` (required): Full name of the security
+- `current_weight` (required): Current weight as percentage (0-100)
+- `returns` (required): Array of historical periodic returns (decimals, e.g., 0.012 = 1.2%)
+- `dividend_yield` (optional): Annual dividend yield as percentage
 
-You can pass a `constraints` string parameter as form-data (e.g. `{"min_weight": 5, "max_weight": 40, "min_dividend_yield": 2.5}`).
+**Optional Constraints:**
+- `min_weight`: Global minimum weight per security (percentage)
+- `max_weight`: Global maximum weight per security (percentage)
+- `min_dividend_yield`: Portfolio minimum dividend yield (percentage)
+- `factor_targets`: Factor exposure targets (e.g., `{"Momentum": "max"}`)
+
+---
+
+### 2. `POST /optimize/upload` (Excel File Upload)
+Upload a single-sheet or multi-sheet `Data.xlsx`:
+
+**Format:**
+- Columns: `ticker`, `security_name`, `current_weight`, `dividend_yield` (optional), plus return columns
+- Multi-sheet: Fund Info, Fund Returns, Factor Returns (optional)
+
+**Example cURL:**
+```bash
+curl -X POST "http://127.0.0.1:8000/optimize/upload" \
+  -F "strategy=minimize_volatility" \
+  -F "file=@Data.xlsx"
+```
 
 ---
 

@@ -1,0 +1,171 @@
+{
+  "validation_test_cases": [
+    {
+      "case_number": 1,
+      "title": "Basic Equal-Weight Sanity Check",
+      "description": "Validate that equal-weight strategy allocates equal capital across all assets",
+      "required": true,
+      "input_portfolio": {
+        "IEFA": 25.0,
+        "SPY": 75.0
+      },
+      "strategy": "equal_weight",
+      "constraints": {},
+      "acceptance_criteria": [
+        "Optimized weights must sum to 100%",
+        "No optimized weight should be negative",
+        "Each security should have equal allocation (50% each for 2 assets)"
+      ],
+      "expected_behavior": "Both IEFA and SPY should receive 50% allocation"
+    },
+    {
+      "case_number": 2,
+      "title": "Risk-Based Allocation Across Different Asset Classes",
+      "description": "Validate risk parity strategy equalizes risk contributions",
+      "required": true,
+      "input_portfolio": {
+        "VEA": 25.0,
+        "AGG": 75.0
+      },
+      "strategy": "risk_parity",
+      "constraints": {},
+      "acceptance_criteria": [
+        "Optimized weights must sum to 100%",
+        "No optimized weight should be negative",
+        "Risk contributions should be approximately equal across assets",
+        "Small floating-point differences below 0.1% are acceptable"
+      ],
+      "expected_behavior": "Risk parity rebalances from initial 25/75 split to equal risk contributions"
+    },
+    {
+      "case_number": 3,
+      "title": "Lowest-Risk Portfolio Construction",
+      "description": "Validate minimize volatility strategy finds minimum variance portfolio",
+      "required": true,
+      "input_portfolio": {
+        "SPY": 60.0,
+        "AGG": 30.0,
+        "GLD": 10.0
+      },
+      "strategy": "minimize_volatility",
+      "constraints": {},
+      "acceptance_criteria": [
+        "Optimized weights must sum to 100%",
+        "No optimized weight should be negative",
+        "Optimized portfolio volatility must be less than or equal to current portfolio volatility",
+        "Small floating-point differences below 0.1% are acceptable"
+      ],
+      "expected_behavior": "Portfolio rebalances to minimize total volatility"
+    },
+    {
+      "case_number": 4,
+      "title": "Risk-Adjusted Return Optimization",
+      "description": "Validate Sharpe ratio maximization balances return and risk",
+      "required": true,
+      "input_portfolio": {
+        "IEFA": 20.0,
+        "GLD": 20.0,
+        "AGG": 20.0,
+        "VEA": 20.0,
+        "SPY": 20.0
+      },
+      "strategy": "max_sharpe",
+      "constraints": {},
+      "acceptance_criteria": [
+        "Optimized weights must sum to 100%",
+        "No optimized weight should be negative",
+        "Optimized Sharpe ratio must be greater than or equal to current portfolio Sharpe ratio",
+        "Small floating-point differences below 0.1% are acceptable"
+      ],
+      "expected_behavior": "Portfolio rebalances to maximize risk-adjusted returns (Sharpe ratio)"
+    },
+    {
+      "case_number": 5,
+      "title": "Portfolio-Level and Security-Level Constraint Handling",
+      "description": "Validate constraints: Min Dividend Yield 2.50%; security bounds min 5%, max 40%",
+      "required": true,
+      "input_portfolio": {
+        "IEFA": 20.0,
+        "GLD": 20.0,
+        "AGG": 20.0,
+        "VEA": 20.0,
+        "SPY": 20.0
+      },
+      "strategy": "max_sharpe",
+      "constraints": {
+        "min_weight": 0.05,
+        "max_weight": 0.40,
+        "min_dividend_yield": 0.025
+      },
+      "constraint_descriptions": {
+        "min_weight": "Each security minimum: 5%",
+        "max_weight": "Each security maximum: 40%",
+        "min_dividend_yield": "Portfolio minimum dividend yield: 2.50%"
+      },
+      "acceptance_criteria": [
+        "Optimized weights must sum to 100%",
+        "No optimized weight should be negative",
+        "Each security weight must be between 5% and 40% (inclusive)",
+        "Portfolio dividend yield must be >= 2.50%",
+        "Optimized Sharpe ratio must be maximized subject to constraints",
+        "If constraints are infeasible, API should return HTTP 400 with clear error message",
+        "Small floating-point differences below 0.1% are acceptable"
+      ],
+      "expected_behavior": "Portfolio respects all constraints while maximizing Sharpe ratio"
+    },
+    {
+      "case_number": 6,
+      "title": "Momentum Factor Exposure",
+      "description": "Validate factor exposure optimization for Momentum (Bonus case)",
+      "required": false,
+      "bonus": true,
+      "input_portfolio": {
+        "IEFA": 20.0,
+        "GLD": 20.0,
+        "AGG": 20.0,
+        "VEA": 20.0,
+        "SPY": 20.0
+      },
+      "strategy": "optimize_factor_exposure",
+      "constraints": {
+        "factor_targets": {
+          "Momentum": "max"
+        }
+      },
+      "acceptance_criteria": [
+        "Optimized weights must sum to 100%",
+        "No optimized weight should be negative",
+        "Response must include factor betas for both current and optimized portfolios",
+        "Factor betas should include: momentum, size, value (lowercase keys)",
+        "Momentum exposure in optimized portfolio should be >= current portfolio momentum exposure",
+        "Small floating-point differences below 0.1% are acceptable"
+      ],
+      "expected_behavior": "Portfolio rebalances to maximize momentum factor exposure; returns factor betas"
+    }
+  ],
+  "validation_guidelines": {
+    "floating_point_tolerance": 0.001,
+    "tolerance_description": "Differences below 0.1% (0.001 in decimal) are acceptable between live tool and API",
+    "response_requirements": [
+      "ticker: Security ticker symbol",
+      "security_name: Full name of the security",
+      "current_weight: Original weight percentage",
+      "optimized_weight: New weight percentage",
+      "allocation: Optimized weight (should match optimized_weight)",
+      "change: Difference between optimized and current weights",
+      "min_weight: Security-level minimum bound (if constraints present)",
+      "max_weight: Security-level maximum bound (if constraints present)"
+    ],
+    "portfolio_metrics": [
+      "CAGR",
+      "Volatility",
+      "Sharpe Ratio",
+      "Cumulative Return",
+      "Expected Return",
+      "Max Drawdown",
+      "Dividend Yield",
+      "Annual Fees"
+    ],
+    "error_handling": "If constraints are infeasible, API must return HTTP 400 with validation error details instead of silently producing invalid weights"
+  }
+}

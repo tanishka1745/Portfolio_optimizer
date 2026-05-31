@@ -131,7 +131,7 @@ if __name__ == '__main__':
 
     # compute portfolio metrics for optimized weights of last run
     allocs = out['allocation_changes']
-    weights = np.array([a['optimized_weight'] for a in allocs]) / 100.0
+    weights = np.array([a['allocation'] for a in allocs]) / 100.0
     # compute portfolio returns series
     returns_matrix = np.array([s.returns for s in secs])
     port_returns = np.dot(weights, returns_matrix)
