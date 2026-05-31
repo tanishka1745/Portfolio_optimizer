@@ -1,0 +1,39 @@
+{
+  "strategy": "max_sharpe",
+  "securities": [
+    {
+      "ticker": "FUND_A",
+      "security_name": "Fund A",
+      "current_weight": 20.0,
+      "returns": [0.012, 0.008, -0.003, 0.015, 0.010, 0.006, -0.004, 0.009, 0.011, 0.002, 0.007, 0.013]
+    },
+    {
+      "ticker": "FUND_B",
+      "security_name": "Fund B",
+      "current_weight": 20.0,
+      "returns": [0.010, 0.005, 0.000, 0.011, 0.009, 0.004, -0.002, 0.006, 0.008, 0.001, 0.005, 0.009]
+    },
+    {
+      "ticker": "FUND_C",
+      "security_name": "Fund C",
+      "current_weight": 20.0,
+      "returns": [0.008, 0.007, -0.001, 0.010, 0.006, 0.005, -0.003, 0.005, 0.007, 0.000, 0.004, 0.008]
+    },
+    {
+      "ticker": "FUND_D",
+      "security_name": "Fund D",
+      "current_weight": 20.0,
+      "returns": [0.015, 0.012, 0.002, 0.018, 0.013, 0.009, -0.001, 0.012, 0.014, 0.005, 0.010, 0.016]
+    },
+    {
+      "ticker": "FUND_E",
+      "security_name": "Fund E",
+      "current_weight": 20.0,
+      "returns": [0.005, 0.003, -0.004, 0.006, 0.004, 0.002, -0.006, 0.001, 0.003, -0.002, 0.001, 0.005]
+    }
+  ],
+  "constraints": {
+    "min_weight": 0,
+    "max_weight": 1
+  }
+}
