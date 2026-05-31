@@ -1,17 +1,16 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Optional, List
 
 class Security(BaseModel):
     ticker: str
-    security_name: str
-    current_weight: float
-    returns: List[float]
 
 class Constraints(BaseModel):
     min_weight: Optional[float] = 0
-    max_weight: Optional[float] = 1
 
 class OptimizationRequest(BaseModel):
     strategy: str
     securities: List[Security]
     constraints: Optional[Constraints] = None
+
+print(OptimizationRequest.model_fields)
+print(OptimizationRequest.model_fields["constraints"])
