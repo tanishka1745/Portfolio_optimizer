@@ -242,14 +242,11 @@ def optimize_portfolio(request):
         response.append({
             "ticker": security.ticker,
             "security_name": security.security_name,
-            "security name": security.security_name,
             "current_weight": security.current_weight,
             "optimized_weight": optimized_weight,
             "allocation": optimized_weight,
             "min_weight": round(bounds[i][0] * 100, 2),
-            "min weight": round(bounds[i][0] * 100, 2),
             "max_weight": round(bounds[i][1] * 100, 2),
-            "max weight": round(bounds[i][1] * 100, 2),
             "change": round(optimized_weight - security.current_weight, 2)
         })
 
