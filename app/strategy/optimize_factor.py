@@ -32,7 +32,18 @@ def factor_objective(weights, securities, factors, factor_targets):
     port = portfolio_returns_series(weights, securities)
     # Assemble factor columns in the order defined by factor_targets keys
     names = list(factor_targets.keys())
-    factor_matrix = np.column_stack([factors[name] for name in names])
+    factor_columns = []
+    for name in names:
+        matched_key = None
+        for k in factors.keys():
+            if k.lower() == name.lower():
+                matched_key = k
+                break
+        if matched_key is None:
+            raise ValueError(f"Factor '{name}' not found in factor returns. Available factors: {list(factors.keys())}")
+        factor_columns.append(factors[matched_key])
+        
+    factor_matrix = np.column_stack(factor_columns)
     betas = regress_betas(port, factor_matrix)
     
     obj = 0.0

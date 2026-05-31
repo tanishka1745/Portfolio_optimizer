@@ -19,4 +19,6 @@ class OptimizationRequest(BaseModel):
     securities: List[Security]
     constraints: Optional[Constraints] = None
     factor_returns: Optional[Dict[str, List[float]]] = None
+    years: Optional[float] = None
+
 

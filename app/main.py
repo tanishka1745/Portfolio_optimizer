@@ -19,3 +19,6 @@ def docs_redirect():
     return RedirectResponse(url="/swagger")
 
 app.include_router(router)
+
+
+
