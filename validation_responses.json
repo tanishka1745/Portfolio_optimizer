@@ -5,68 +5,24 @@
       {
         "ticker": "IEFA",
         "security_name": "iShares Core MSCI EAFE ETF",
-        "security name": "iShares Core MSCI EAFE ETF",
         "current_weight": 25.0,
         "optimized_weight": 50.0,
         "allocation": 50.0,
         "min_weight": 0,
-        "min weight": 0,
         "max_weight": 100,
-        "max weight": 100,
         "change": 25.0
       },
       {
         "ticker": "SPY",
         "security_name": "State Street SPDR S&P 500 ETF Trust",
-        "security name": "State Street SPDR S&P 500 ETF Trust",
         "current_weight": 75.0,
         "optimized_weight": 50.0,
         "allocation": 50.0,
         "min_weight": 0,
-        "min weight": 0,
         "max_weight": 100,
-        "max weight": 100,
         "change": -25.0
       }
     ],
-    "portfolio_metrics": {
-      "duration_years": 13.58,
-      "current_portfolio": {
-        "annual_fees": 0.08,
-        "cagr": 13.3,
-        "cumulative_return": 444.94,
-        "expected_return": 13.85,
-        "volatility": 16.26,
-        "sharpe_ratio": 0.71,
-        "max_drawdown": -33.6,
-        "dividend_yield": 1.56
-      },
-      "optimized_portfolio": {
-        "annual_fees": 0.08,
-        "cagr": 11.67,
-        "cumulative_return": 347.41,
-        "expected_return": 12.36,
-        "volatility": 16.05,
-        "sharpe_ratio": 0.62,
-        "max_drawdown": -33.69,
-        "dividend_yield": 2.13
-      },
-      "change": {
-        "annual_fees": 0.0,
-        "cagr": -1.63,
-        "cumulative_return": -97.53,
-        "expected_return": -1.49,
-        "volatility": -0.21,
-        "sharpe_ratio": -0.09,
-        "max_drawdown": -0.09,
-        "dividend_yield": 0.57
-      },
-      "tracking_error": {
-        "current_portfolio": 0.0,
-        "optimized_portfolio": 2.34,
-        "change": 2.34
-      }
-    },
     "factor_betas": {
       "current_portfolio": {
         "momentum": 0.1723547177997809,
@@ -86,68 +42,24 @@
       {
         "ticker": "VEA",
         "security_name": "Vanguard Developed Markets Index Fund;ETF",
-        "security name": "Vanguard Developed Markets Index Fund;ETF",
         "current_weight": 25.0,
         "optimized_weight": 22.81,
         "allocation": 22.81,
         "min_weight": 0,
-        "min weight": 0,
         "max_weight": 100,
-        "max weight": 100,
         "change": -2.19
       },
       {
         "ticker": "AGG",
         "security_name": "iShares Core US Aggregate Bond ETF",
-        "security name": "iShares Core US Aggregate Bond ETF",
         "current_weight": 75.0,
         "optimized_weight": 77.19,
         "allocation": 77.19,
         "min_weight": 0,
-        "min weight": 0,
         "max_weight": 100,
-        "max weight": 100,
         "change": 2.19
       }
     ],
-    "portfolio_metrics": {
-      "duration_years": 13.58,
-      "current_portfolio": {
-        "annual_fees": 0.04,
-        "cagr": 3.76,
-        "cumulative_return": 65.02,
-        "expected_return": 3.88,
-        "volatility": 5.97,
-        "sharpe_ratio": 0.34,
-        "max_drawdown": -19.96,
-        "dividend_yield": 3.49
-      },
-      "optimized_portfolio": {
-        "annual_fees": 0.03,
-        "cagr": 3.59,
-        "cumulative_return": 61.43,
-        "expected_return": 3.7,
-        "volatility": 5.77,
-        "sharpe_ratio": 0.32,
-        "max_drawdown": -19.75,
-        "dividend_yield": 3.53
-      },
-      "change": {
-        "annual_fees": -0.01,
-        "cagr": -0.17,
-        "cumulative_return": -3.59,
-        "expected_return": -0.18,
-        "volatility": -0.2,
-        "sharpe_ratio": -0.02,
-        "max_drawdown": 0.21,
-        "dividend_yield": 0.04
-      },
-      "tracking_error": {
-        "current_portfolio": 0.0,
-        "optimized_portfolio": 0.37,
-        "change": 0.37
-      }
-    },
     "factor_betas": {
       "current_portfolio": {
         "momentum": 0.03697846189952423,
@@ -167,81 +79,34 @@
       {
         "ticker": "SPY",
         "security_name": "State Street SPDR S&P 500 ETF Trust",
-        "security name": "State Street SPDR S&P 500 ETF Trust",
         "current_weight": 60.0,
         "optimized_weight": 6.09,
         "allocation": 6.09,
         "min_weight": 0,
-        "min weight": 0,
         "max_weight": 100,
-        "max weight": 100,
         "change": -53.91
       },
       {
         "ticker": "AGG",
         "security_name": "iShares Core US Aggregate Bond ETF",
-        "security name": "iShares Core US Aggregate Bond ETF",
         "current_weight": 30.0,
         "optimized_weight": 93.91,
         "allocation": 93.91,
         "min_weight": 0,
-        "min weight": 0,
         "max_weight": 100,
-        "max weight": 100,
         "change": 63.91
       },
       {
         "ticker": "GLD",
         "security_name": "SPDR Gold Shares",
-        "security name": "SPDR Gold Shares",
         "current_weight": 10.0,
         "optimized_weight": 0.0,
         "allocation": 0.0,
         "min_weight": 0,
-        "min weight": 0,
         "max_weight": 100,
-        "max weight": 100,
         "change": -10.0
       }
     ],
-    "portfolio_metrics": {
-      "duration_years": 13.58,
-      "current_portfolio": {
-        "annual_fees": 0.1,
-        "cagr": 10.49,
-        "cumulative_return": 287.47,
-        "expected_return": 10.57,
-        "volatility": 10.6,
-        "sharpe_ratio": 0.82,
-        "max_drawdown": -21.86,
-        "dividend_yield": 1.78
-      },
-      "optimized_portfolio": {
-        "annual_fees": 0.03,
-        "cagr": 2.61,
-        "cumulative_return": 41.96,
-        "expected_return": 2.71,
-        "volatility": 4.83,
-        "sharpe_ratio": 0.18,
-        "max_drawdown": -17.57,
-        "dividend_yield": 3.79
-      },
-      "change": {
-        "annual_fees": -0.07,
-        "cagr": -7.88,
-        "cumulative_return": -245.51,
-        "expected_return": -7.86,
-        "volatility": -5.77,
-        "sharpe_ratio": -0.64,
-        "max_drawdown": 4.29,
-        "dividend_yield": 2.01
-      },
-      "tracking_error": {
-        "current_portfolio": 0.0,
-        "optimized_portfolio": 9.39,
-        "change": 9.39
-      }
-    },
     "factor_betas": {
       "current_portfolio": {
         "momentum": 0.11411761219446463,
@@ -261,107 +126,54 @@
       {
         "ticker": "IEFA",
         "security_name": "iShares Core MSCI EAFE ETF",
-        "security name": "iShares Core MSCI EAFE ETF",
         "current_weight": 20.0,
         "optimized_weight": 0.0,
         "allocation": 0.0,
         "min_weight": 0,
-        "min weight": 0,
         "max_weight": 100,
-        "max weight": 100,
         "change": -20.0
       },
       {
         "ticker": "GLD",
         "security_name": "SPDR Gold Shares",
-        "security name": "SPDR Gold Shares",
         "current_weight": 20.0,
         "optimized_weight": 20.71,
         "allocation": 20.71,
         "min_weight": 0,
-        "min weight": 0,
         "max_weight": 100,
-        "max weight": 100,
         "change": 0.71
       },
       {
         "ticker": "AGG",
         "security_name": "iShares Core US Aggregate Bond ETF",
-        "security name": "iShares Core US Aggregate Bond ETF",
         "current_weight": 20.0,
         "optimized_weight": 33.45,
         "allocation": 33.45,
         "min_weight": 0,
-        "min weight": 0,
         "max_weight": 100,
-        "max weight": 100,
         "change": 13.45
       },
       {
         "ticker": "VEA",
         "security_name": "Vanguard Developed Markets Index Fund;ETF",
-        "security name": "Vanguard Developed Markets Index Fund;ETF",
         "current_weight": 20.0,
         "optimized_weight": 0.0,
         "allocation": 0.0,
         "min_weight": 0,
-        "min weight": 0,
         "max_weight": 100,
-        "max weight": 100,
         "change": -20.0
       },
       {
         "ticker": "SPY",
         "security_name": "State Street SPDR S&P 500 ETF Trust",
-        "security name": "State Street SPDR S&P 500 ETF Trust",
         "current_weight": 20.0,
         "optimized_weight": 45.84,
         "allocation": 45.84,
         "min_weight": 0,
-        "min weight": 0,
         "max_weight": 100,
-        "max weight": 100,
         "change": 25.84
       }
     ],
-    "portfolio_metrics": {
-      "duration_years": 13.58,
-      "current_portfolio": {
-        "annual_fees": 0.13,
-        "cagr": 8.62,
-        "cumulative_return": 207.37,
-        "expected_return": 8.89,
-        "volatility": 10.87,
-        "sharpe_ratio": 0.63,
-        "max_drawdown": -22.28,
-        "dividend_yield": 2.05
-      },
-      "optimized_portfolio": {
-        "annual_fees": 0.13,
-        "cagr": 9.28,
-        "cumulative_return": 233.82,
-        "expected_return": 9.31,
-        "volatility": 9.05,
-        "sharpe_ratio": 0.83,
-        "max_drawdown": -18.05,
-        "dividend_yield": 1.78
-      },
-      "change": {
-        "annual_fees": 0.0,
-        "cagr": 0.66,
-        "cumulative_return": 26.45,
-        "expected_return": 0.42,
-        "volatility": -1.82,
-        "sharpe_ratio": 0.2,
-        "max_drawdown": 4.23,
-        "dividend_yield": -0.27
-      },
-      "tracking_error": {
-        "current_portfolio": 0.0,
-        "optimized_portfolio": 3.69,
-        "change": 3.69
-      }
-    },
     "factor_betas": {
       "current_portfolio": {
         "momentum": 0.13157439837643387,
@@ -381,107 +193,54 @@
       {
         "ticker": "IEFA",
         "security_name": "iShares Core MSCI EAFE ETF",
-        "security name": "iShares Core MSCI EAFE ETF",
         "current_weight": 20.0,
         "optimized_weight": 14.8,
         "allocation": 14.8,
         "min_weight": 5.0,
-        "min weight": 5.0,
         "max_weight": 40.0,
-        "max weight": 40.0,
         "change": -5.2
       },
       {
         "ticker": "GLD",
         "security_name": "SPDR Gold Shares",
-        "security name": "SPDR Gold Shares",
         "current_weight": 20.0,
         "optimized_weight": 7.42,
         "allocation": 7.42,
         "min_weight": 5.0,
-        "min weight": 5.0,
         "max_weight": 40.0,
-        "max weight": 40.0,
         "change": -12.58
       },
       {
         "ticker": "AGG",
         "security_name": "iShares Core US Aggregate Bond ETF",
-        "security name": "iShares Core US Aggregate Bond ETF",
         "current_weight": 20.0,
         "optimized_weight": 40.0,
         "allocation": 40.0,
         "min_weight": 5.0,
-        "min weight": 5.0,
         "max_weight": 40.0,
-        "max weight": 40.0,
         "change": 20.0
       },
       {
         "ticker": "VEA",
         "security_name": "Vanguard Developed Markets Index Fund;ETF",
-        "security name": "Vanguard Developed Markets Index Fund;ETF",
         "current_weight": 20.0,
         "optimized_weight": 5.0,
         "allocation": 5.0,
         "min_weight": 5.0,
-        "min weight": 5.0,
         "max_weight": 40.0,
-        "max weight": 40.0,
         "change": -15.0
       },
       {
         "ticker": "SPY",
         "security_name": "State Street SPDR S&P 500 ETF Trust",
-        "security name": "State Street SPDR S&P 500 ETF Trust",
         "current_weight": 20.0,
         "optimized_weight": 32.78,
         "allocation": 32.78,
         "min_weight": 5.0,
-        "min weight": 5.0,
         "max_weight": 40.0,
-        "max weight": 40.0,
         "change": 12.78
       }
     ],
-    "portfolio_metrics": {
-      "duration_years": 13.58,
-      "current_portfolio": {
-        "annual_fees": 0.13,
-        "cagr": 8.62,
-        "cumulative_return": 207.37,
-        "expected_return": 8.89,
-        "volatility": 10.87,
-        "sharpe_ratio": 0.63,
-        "max_drawdown": -22.28,
-        "dividend_yield": 2.05
-      },
-      "optimized_portfolio": {
-        "annual_fees": 0.08,
-        "cagr": 8.12,
-        "cumulative_return": 188.73,
-        "expected_return": 8.26,
-        "volatility": 9.2,
-        "sharpe_ratio": 0.69,
-        "max_drawdown": -20.26,
-        "dividend_yield": 2.5
-      },
-      "change": {
-        "annual_fees": -0.05,
-        "cagr": -0.5,
-        "cumulative_return": -18.64,
-        "expected_return": -0.63,
-        "volatility": -1.67,
-        "sharpe_ratio": 0.06,
-        "max_drawdown": 2.02,
-        "dividend_yield": 0.45
-      },
-      "tracking_error": {
-        "current_portfolio": 0.0,
-        "optimized_portfolio": 2.97,
-        "change": 2.97
-      }
-    },
     "factor_betas": {
       "current_portfolio": {
         "momentum": 0.13157439837643387,
@@ -501,107 +260,54 @@
       {
         "ticker": "IEFA",
         "security_name": "iShares Core MSCI EAFE ETF",
-        "security name": "iShares Core MSCI EAFE ETF",
         "current_weight": 20.0,
         "optimized_weight": 0.0,
         "allocation": 0.0,
         "min_weight": 0,
-        "min weight": 0,
         "max_weight": 100,
-        "max weight": 100,
         "change": -20.0
       },
       {
         "ticker": "GLD",
         "security_name": "SPDR Gold Shares",
-        "security name": "SPDR Gold Shares",
         "current_weight": 20.0,
         "optimized_weight": 100.0,
         "allocation": 100.0,
         "min_weight": 0,
-        "min weight": 0,
         "max_weight": 100,
-        "max weight": 100,
         "change": 80.0
       },
       {
         "ticker": "AGG",
         "security_name": "iShares Core US Aggregate Bond ETF",
-        "security name": "iShares Core US Aggregate Bond ETF",
         "current_weight": 20.0,
         "optimized_weight": 0.0,
         "allocation": 0.0,
         "min_weight": 0,
-        "min weight": 0,
         "max_weight": 100,
-        "max weight": 100,
         "change": -20.0
       },
       {
         "ticker": "VEA",
         "security_name": "Vanguard Developed Markets Index Fund;ETF",
-        "security name": "Vanguard Developed Markets Index Fund;ETF",
         "current_weight": 20.0,
         "optimized_weight": 0.0,
         "allocation": 0.0,
         "min_weight": 0,
-        "min weight": 0,
         "max_weight": 100,
-        "max weight": 100,
         "change": -20.0
       },
       {
         "ticker": "SPY",
         "security_name": "State Street SPDR S&P 500 ETF Trust",
-        "security name": "State Street SPDR S&P 500 ETF Trust",
         "current_weight": 20.0,
         "optimized_weight": 0.0,
         "allocation": 0.0,
         "min_weight": 0,
-        "min weight": 0,
         "max_weight": 100,
-        "max weight": 100,
         "change": -20.0
       }
     ],
-    "portfolio_metrics": {
-      "duration_years": 13.58,
-      "current_portfolio": {
-        "annual_fees": 0.13,
-        "cagr": 8.62,
-        "cumulative_return": 207.37,
-        "expected_return": 8.89,
-        "volatility": 10.87,
-        "sharpe_ratio": 0.63,
-        "max_drawdown": -22.28,
-        "dividend_yield": 2.05
-      },
-      "optimized_portfolio": {
-        "annual_fees": 0.4,
-        "cagr": 6.84,
-        "cumulative_return": 145.66,
-        "expected_return": 7.97,
-        "volatility": 16.27,
-        "sharpe_ratio": 0.31,
-        "max_drawdown": -40.75,
-        "dividend_yield": 0.0
-      },
-      "change": {
-        "annual_fees": 0.27,
-        "cagr": -1.78,
-        "cumulative_return": -61.71,
-        "expected_return": -0.92,
-        "volatility": 5.4,
-        "sharpe_ratio": -0.32,
-        "max_drawdown": -18.47,
-        "dividend_yield": -2.05
-      },
-      "tracking_error": {
-        "current_portfolio": 0.0,
-        "optimized_portfolio": 14.99,
-        "change": 14.99
-      }
-    },
     "factor_betas": {
       "current_portfolio": {
         "momentum": 0.13157439837643387,
