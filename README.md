@@ -150,10 +150,12 @@ If any constraints are incompatible or impossible to meet (e.g. demanding a 10% 
 
 #ScreenShot of correct output
 
-Equal Weight
+Equal Weight <br>
 <img width="691" height="163" alt="output" src="https://github.com/user-attachments/assets/16ac8521-f983-4b77-9a52-486a4cf1a259" />
 <img width="818" height="206" alt="response data" src="https://github.com/user-attachments/assets/03759a3f-add6-4d72-84fa-6ee964d0e271" />
 <img width="870" height="266" alt="api request" src="https://github.com/user-attachments/assets/66cb688f-6fb4-463f-a4e3-c61bfaf9dac6" />
+
+<br>
 
 # Risk Parity
 <img width="697" height="239" alt="risk correct " src="https://github.com/user-attachments/assets/6c459a79-5699-43db-bd0e-0fce34a9db0a" />
